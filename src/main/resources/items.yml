@@ -1,0 +1,650 @@
+items:
+
+  sample_guardian_helmet:
+    material: DIAMOND_HELMET
+    name: "&bGuardian Helmet"
+    lore:
+      - "&7Basic sample helmet."
+      - "&7Shows armor-slot activation."
+    custom_model_data: 0
+    unbreakable: false
+    item_flags:
+      - HIDE_ATTRIBUTES
+    enchantments:
+      - type: PROTECTION
+        level: 3
+    attributes:
+      - attribute: GENERIC_ARMOR
+        amount: 3.0
+        operation: ADD_NUMBER
+        slot: HEAD
+      - attribute: GENERIC_MAX_HEALTH
+        amount: 2.0
+        operation: ADD_NUMBER
+        slot: HEAD
+    equip_effects:
+      enabled: true
+      active_slots:
+        - HEAD
+      potion_effects:
+        - type: WATER_BREATHING
+          amplifier: 0
+          ambient: true
+          particles: false
+          icon: true
+    triggers:
+      on_equip:
+        enabled: true
+        potion_effects_self:
+          - type: ABSORPTION
+            duration: 80
+            amplifier: 0
+            ambient: false
+            particles: true
+            icon: true
+        commands:
+          - 'tellraw %player% {"text":"Guardian Helmet equipped in %slot%","color":"aqua"}'
+      on_unequip:
+        enabled: true
+        potion_effects_self: []
+        commands:
+          - 'tellraw %player% {"text":"Guardian Helmet unequipped from %slot%","color":"gray"}'
+      on_hit:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_kill:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_consume:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+
+  sample_guardian_chestplate:
+    material: DIAMOND_CHESTPLATE
+    name: "&bGuardian Chestplate"
+    lore:
+      - "&7Basic sample chestplate."
+      - "&7Part of the Guardian Set."
+    custom_model_data: 0
+    unbreakable: false
+    item_flags: []
+    enchantments:
+      - type: PROTECTION
+        level: 4
+    attributes:
+      - attribute: GENERIC_ARMOR
+        amount: 8.0
+        operation: ADD_NUMBER
+        slot: CHEST
+      - attribute: GENERIC_ARMOR_TOUGHNESS
+        amount: 2.0
+        operation: ADD_NUMBER
+        slot: CHEST
+    equip_effects:
+      enabled: true
+      active_slots:
+        - CHEST
+      potion_effects:
+        - type: RESISTANCE
+          amplifier: 0
+          ambient: true
+          particles: false
+          icon: true
+    triggers:
+      on_equip:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+      on_unequip:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+      on_hit:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_kill:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_consume:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+
+  sample_guardian_leggings:
+    material: DIAMOND_LEGGINGS
+    name: "&bGuardian Leggings"
+    lore:
+      - "&7Basic sample leggings."
+      - "&7Part of the Guardian Set."
+    custom_model_data: 0
+    unbreakable: false
+    item_flags: []
+    enchantments:
+      - type: PROTECTION
+        level: 3
+    attributes:
+      - attribute: GENERIC_ARMOR
+        amount: 6.0
+        operation: ADD_NUMBER
+        slot: LEGS
+      - attribute: GENERIC_MOVEMENT_SPEED
+        amount: 0.03
+        operation: ADD_SCALAR
+        slot: LEGS
+    equip_effects:
+      enabled: true
+      active_slots:
+        - LEGS
+      potion_effects:
+        - type: SPEED
+          amplifier: 0
+          ambient: true
+          particles: false
+          icon: true
+    triggers:
+      on_equip:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+      on_unequip:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+      on_hit:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_kill:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_consume:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+
+  sample_guardian_boots:
+    material: DIAMOND_BOOTS
+    name: "&bGuardian Boots"
+    lore:
+      - "&7Basic sample boots."
+      - "&7Part of the Guardian Set."
+    custom_model_data: 0
+    unbreakable: false
+    item_flags: []
+    enchantments:
+      - type: FEATHER_FALLING
+        level: 3
+    attributes:
+      - attribute: GENERIC_ARMOR
+        amount: 3.0
+        operation: ADD_NUMBER
+        slot: FEET
+      - attribute: GENERIC_KNOCKBACK_RESISTANCE
+        amount: 0.05
+        operation: ADD_NUMBER
+        slot: FEET
+    equip_effects:
+      enabled: true
+      active_slots:
+        - FEET
+      potion_effects:
+        - type: JUMP_BOOST
+          amplifier: 0
+          ambient: true
+          particles: false
+          icon: true
+    triggers:
+      on_equip:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+      on_unequip:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+      on_hit:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_kill:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_consume:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+
+  sample_battle_sword:
+    material: DIAMOND_SWORD
+    name: "&5Battle Sword"
+    lore:
+      - "&7Only active while selected in main hand."
+      - "&7Shows HAND slot and combat triggers."
+    custom_model_data: 0
+    unbreakable: false
+    item_flags: []
+    enchantments:
+      - type: SHARPNESS
+        level: 3
+    attributes:
+      - attribute: GENERIC_ATTACK_DAMAGE
+        amount: 4.0
+        operation: ADD_NUMBER
+        slot: HAND
+      - attribute: GENERIC_ATTACK_SPEED
+        amount: 0.10
+        operation: ADD_SCALAR
+        slot: HAND
+    equip_effects:
+      enabled: true
+      active_slots:
+        - HAND
+      potion_effects:
+        - type: STRENGTH
+          amplifier: 0
+          ambient: true
+          particles: false
+          icon: true
+    triggers:
+      on_equip:
+        enabled: true
+        potion_effects_self: []
+        commands:
+          - 'tellraw %player% {"text":"Battle Sword is now active in %slot%","color":"light_purple"}'
+      on_unequip:
+        enabled: true
+        potion_effects_self: []
+        commands:
+          - 'tellraw %player% {"text":"Battle Sword is no longer active","color":"gray"}'
+      on_hit:
+        enabled: true
+        potion_effects_self: []
+        potion_effects_target:
+          - type: WEAKNESS
+            duration: 100
+            amplifier: 0
+            ambient: false
+            particles: true
+            icon: true
+        commands:
+          - 'tellraw %player% {"text":"You hit %target% with %item_id%","color":"red"}'
+      on_kill:
+        enabled: true
+        potion_effects_self:
+          - type: SPEED
+            duration: 100
+            amplifier: 0
+            ambient: false
+            particles: true
+            icon: true
+        potion_effects_target: []
+        commands:
+          - 'tellraw %player% {"text":"You defeated %target% with %item_id%","color":"dark_red"}'
+      on_consume:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+
+  sample_hunter_bow:
+    material: BOW
+    name: "&dHunter Bow"
+    lore:
+      - "&7Projectile test item."
+      - "&7Use this to test on_hit and on_kill with arrows."
+    custom_model_data: 0
+    unbreakable: false
+    item_flags: []
+    enchantments:
+      - type: POWER
+        level: 3
+      - type: PUNCH
+        level: 1
+      - type: UNBREAKING
+        level: 3
+    attributes:
+      - attribute: GENERIC_ATTACK_SPEED
+        amount: 0.05
+        operation: ADD_SCALAR
+        slot: HAND
+    equip_effects:
+      enabled: true
+      active_slots:
+        - HAND
+      potion_effects: []
+    triggers:
+      on_equip:
+        enabled: true
+        potion_effects_self: []
+        commands:
+          - 'tellraw %player% {"text":"Hunter Bow is now active in %slot%","color":"light_purple"}'
+      on_unequip:
+        enabled: true
+        potion_effects_self: []
+        commands:
+          - 'tellraw %player% {"text":"Hunter Bow is no longer active","color":"gray"}'
+      on_hit:
+        enabled: true
+        potion_effects_self: []
+        potion_effects_target:
+          - type: GLOWING
+            duration: 120
+            amplifier: 0
+            ambient: false
+            particles: true
+            icon: true
+        commands:
+          - 'tellraw %player% {"text":"Arrow hit %target% with %item_id%","color":"gold"}'
+      on_kill:
+        enabled: true
+        potion_effects_self:
+          - type: SPEED
+            duration: 120
+            amplifier: 1
+            ambient: false
+            particles: true
+            icon: true
+        potion_effects_target: []
+        commands:
+          - 'tellraw %player% {"text":"Arrow kill on %target% with %item_id%","color":"yellow"}'
+      on_consume:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+
+  sample_hotbar_charm:
+    material: TOTEM_OF_UNDYING
+    name: "&eHotbar Charm"
+    lore:
+      - "&7Active in any hotbar slot."
+      - "&7Does not need to be selected."
+    custom_model_data: 0
+    unbreakable: true
+    item_flags:
+      - HIDE_UNBREAKABLE
+    enchantments: []
+    attributes:
+      - attribute: GENERIC_MOVEMENT_SPEED
+        amount: 0.05
+        operation: ADD_SCALAR
+        slot: HOTBAR
+    equip_effects:
+      enabled: true
+      active_slots:
+        - HOTBAR
+      potion_effects:
+        - type: SPEED
+          amplifier: 0
+          ambient: true
+          particles: false
+          icon: true
+    triggers:
+      on_equip:
+        enabled: true
+        potion_effects_self: []
+        commands:
+          - 'tellraw %player% {"text":"Hotbar Charm is active","color":"yellow"}'
+      on_unequip:
+        enabled: true
+        potion_effects_self: []
+        commands:
+          - 'tellraw %player% {"text":"Hotbar Charm is inactive","color":"gray"}'
+      on_hit:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_kill:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_consume:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+
+  sample_offhand_shield:
+    material: SHIELD
+    name: "&6Offhand Shield"
+    lore:
+      - "&7Only active in the off hand."
+      - "&7Shows OFF_HAND support."
+    custom_model_data: 0
+    unbreakable: false
+    item_flags: []
+    enchantments:
+      - type: UNBREAKING
+        level: 3
+    attributes:
+      - attribute: GENERIC_KNOCKBACK_RESISTANCE
+        amount: 0.15
+        operation: ADD_NUMBER
+        slot: OFF_HAND
+    equip_effects:
+      enabled: true
+      active_slots:
+        - OFF_HAND
+      potion_effects:
+        - type: RESISTANCE
+          amplifier: 0
+          ambient: true
+          particles: false
+          icon: true
+    triggers:
+      on_equip:
+        enabled: true
+        potion_effects_self: []
+        commands:
+          - 'tellraw %player% {"text":"Offhand Shield equipped","color":"gold"}'
+      on_unequip:
+        enabled: true
+        potion_effects_self: []
+        commands:
+          - 'tellraw %player% {"text":"Offhand Shield unequipped","color":"gray"}'
+      on_hit:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_kill:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_consume:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+
+  sample_food:
+    material: APPLE
+    name: "&aSample Food"
+    lore:
+      - "&7Basic consumable trigger example."
+    custom_model_data: 0
+    unbreakable: false
+    item_flags: []
+    enchantments: []
+    attributes: []
+    equip_effects:
+      enabled: false
+      active_slots: []
+      potion_effects: []
+    triggers:
+      on_equip:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+      on_unequip:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+      on_hit:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_kill:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_consume:
+        enabled: true
+        potion_effects_self:
+          - type: REGENERATION
+            duration: 100
+            amplifier: 0
+            ambient: false
+            particles: true
+            icon: true
+        commands:
+          - 'tellraw %player% {"text":"You consumed %item_id%","color":"green"}'
+
+  sample_multiplier_ring:
+    material: BLAZE_ROD
+    name: "&dMultiplier Ring"
+    lore:
+      - "&7Simple sample for MULTIPLY_SCALAR_1."
+      - "&7Works from the hotbar."
+    custom_model_data: 0
+    unbreakable: true
+    item_flags:
+      - HIDE_UNBREAKABLE
+    enchantments: []
+    attributes:
+      - attribute: GENERIC_MOVEMENT_SPEED
+        amount: 0.10
+        operation: MULTIPLY_SCALAR_1
+        slot: HOTBAR
+    equip_effects:
+      enabled: true
+      active_slots:
+        - HOTBAR
+      potion_effects: []
+    triggers:
+      on_equip:
+        enabled: true
+        potion_effects_self: []
+        commands:
+          - 'tellraw %player% {"text":"Multiplier Ring activated","color":"light_purple"}'
+      on_unequip:
+        enabled: true
+        potion_effects_self: []
+        commands:
+          - 'tellraw %player% {"text":"Multiplier Ring deactivated","color":"gray"}'
+      on_hit:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_kill:
+        enabled: false
+        potion_effects_self: []
+        potion_effects_target: []
+        commands: []
+      on_consume:
+        enabled: false
+        potion_effects_self: []
+        commands: []
+
+sets:
+
+  guardian_set:
+    pieces:
+      - sample_guardian_helmet
+      - sample_guardian_chestplate
+      - sample_guardian_leggings
+      - sample_guardian_boots
+    required_amount: 4
+    attributes:
+      - attribute: GENERIC_MAX_HEALTH
+        amount: 4.0
+        operation: ADD_NUMBER
+        slot: ANY
+      - attribute: GENERIC_KNOCKBACK_RESISTANCE
+        amount: 0.10
+        operation: ADD_NUMBER
+        slot: ANY
+      - attribute: GENERIC_SCALE
+        amount: -0.8
+        operation: ADD_SCALAR
+        slot: ANY
+    potion_effects:
+      - type: NIGHT_VISION
+        amplifier: 0
+        ambient: true
+        particles: false
+        icon: true
+      - type: HASTE
+        amplifier: 0
+        ambient: true
+        particles: false
+        icon: true
+    triggers:
+      on_activate:
+        enabled: true
+        potion_effects_self:
+          - type: ABSORPTION
+            duration: 100
+            amplifier: 0
+            ambient: false
+            particles: true
+            icon: true
+        commands:
+          - 'tellraw %player% {"text":"Guardian Set activated: %set_id%","color":"aqua"}'
+      on_deactivate:
+        enabled: true
+        potion_effects_self: []
+        commands:
+          - 'tellraw %player% {"text":"Guardian Set deactivated: %set_id%","color":"gray"}'
+
+  mixed_slots_set:
+    pieces:
+      - sample_hotbar_charm
+      - sample_offhand_shield
+      - sample_guardian_boots
+    required_amount: 3
+    attributes:
+      - attribute: GENERIC_MOVEMENT_SPEED
+        amount: 0.05
+        operation: ADD_SCALAR
+        slot: ANY
+    potion_effects:
+      - type: SPEED
+        amplifier: 1
+        ambient: true
+        particles: false
+        icon: true
+    triggers:
+      on_activate:
+        enabled: true
+        potion_effects_self:
+          - type: JUMP_BOOST
+            duration: 100
+            amplifier: 0
+            ambient: false
+            particles: true
+            icon: true
+        commands:
+          - 'tellraw %player% {"text":"Mixed Slots Set activated: %set_id%","color":"yellow"}'
+      on_deactivate:
+        enabled: true
+        potion_effects_self: []
+        commands:
+          - 'tellraw %player% {"text":"Mixed Slots Set deactivated: %set_id%","color":"gray"}'

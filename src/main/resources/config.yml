@@ -1,0 +1,21 @@
+debug: false
+
+prefix: "&8[&bRaddItems&8] "
+
+messages:
+  no-permission: "&cYou do not have permission to use this command."
+  players-only: "&cOnly players can receive custom items."
+  unknown-subcommand: "&cUnknown subcommand."
+  reload-success: "&aRaddItems reloaded successfully."
+
+  usage-give-item: "&eUsage: /radditems give <itemId>"
+  usage-give-set: "&eUsage: /radditems give set <setId>"
+  usage-reload: "&eUsage: /radditems reload"
+
+  item-not-found: "&cNo item exists with id: &f%id%"
+  set-not-found: "&cNo set exists with id: &f%id%"
+  set-no-items-created: "&cNo items from set could be created: &f%id%"
+  set-missing-items: "&eMissing item ids in set: &f%items%"
+
+  item-given: "&aGiven item: &f%id%"
+  set-given: "&aGiven set: &f%id% &a(%amount% pieces)"

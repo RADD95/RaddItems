@@ -1,0 +1,17 @@
+name: RaddItems
+main: me.radd.customitems.RaddItemsPlugin
+version: 1.0.0
+api-version: 1.21
+author: RADD
+description: Custom items with attributes, food, effects and armor sets.
+
+commands:
+  radditems:
+    description: Main command for custom items, reload.
+    usage: /radditems <subcommand>
+    aliases: [ri, ci]
+
+permissions:
+  radditems.admin:
+    description: Full access to all RaddItems commands.
+    default: op

@@ -1,0 +1,17 @@
+sets:
+  infernal_set:
+    items:
+      - infernal_helmet
+      # - infernal_chestplate
+      # - infernal_leggings
+      # - infernal_boots
+    full_set_potion_effects:
+      - type: NIGHT_VISION
+        duration: 999999
+        amplifier: 0
+        ambient: true
+        particles: false
+    full_set_attributes:
+      - type: GENERIC_MOVEMENT_SPEED
+        amount: 0.05
+        operation: ADD_SCALAR

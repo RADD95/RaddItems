@@ -1,0 +1,20 @@
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE
+/.idea/
+/.project
+.classpath
+/.settings/
+/bin/
+
+# Maven/Gradle
+/target/
+/build/
+
+# OS
+.DS_Store
+Thumbs.db
