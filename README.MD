@@ -50,7 +50,7 @@ You can define:
 
 ## Documentation
 
-Detailed configuration examples and guides can be found in the [project wiki](WIKI.MD).
+Detailed configuration examples and guides can be found in the [project wiki](WIKI.md).
 
 ## Example Uses
 
