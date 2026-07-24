@@ -9,6 +9,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -65,7 +66,12 @@ public final class CustomItemActivationUtil {
 
         PlayerInventory inv = player.getInventory();
         EntityEquipment equipment = player.getEquipment();
-        return matchesSlot(inv, equipment, expectedItemId, normalized);
+
+        if (normalized.equals("ANY")) {
+            return resolveFirstMatchingAnySlot(inv, equipment, expectedItemId) != null;
+        }
+
+        return matchesConcreteSlot(inv, equipment, expectedItemId, normalized);
     }
 
     public static List<String> resolveConfiguredActiveSlots(CustomItemDefinition def) {
@@ -86,7 +92,13 @@ public final class CustomItemActivationUtil {
         Set<String> normalized = new LinkedHashSet<>();
         for (String slot : rawSlots) {
             String resolved = normalizeSlot(slot);
-            if (!resolved.isBlank()) {
+            if (resolved.isBlank()) {
+                continue;
+            }
+
+            if (resolved.equals("ANY")) {
+                normalized.addAll(ANY_SLOT_ORDER);
+            } else {
                 normalized.add(resolved);
             }
         }
@@ -145,28 +157,73 @@ public final class CustomItemActivationUtil {
         return slot != null ? slot : "UNKNOWN";
     }
 
+    public static List<String> resolveAllActiveSlots(Player player, CustomItemDefinition def) {
+        if (player == null || def == null || def.getId() == null || def.getId().isBlank()) {
+            return Collections.emptyList();
+        }
+
+        return findAllMatchingSlots(player, def.getId(), resolveConfiguredActiveSlots(def));
+    }
+
+    public static List<String> resolveAllActiveSlotsForEquipEffects(Player player, CustomItemDefinition def) {
+        if (player == null || def == null || def.getId() == null || def.getId().isBlank()) {
+            return Collections.emptyList();
+        }
+
+        return findAllMatchingSlots(player, def.getId(), resolveEquipEffectActiveSlots(def));
+    }
+
     private static String findFirstMatchingSlot(Player player, String expectedItemId, List<String> requestedSlots) {
+        List<String> matches = findAllMatchingSlots(player, expectedItemId, requestedSlots);
+        return matches.isEmpty() ? null : matches.get(0);
+    }
+
+    private static List<String> findAllMatchingSlots(Player player, String expectedItemId, List<String> requestedSlots) {
         if (requestedSlots == null || requestedSlots.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
 
         PlayerInventory inv = player.getInventory();
         EntityEquipment equipment = player.getEquipment();
+        List<String> matches = new ArrayList<>();
+        Set<String> added = new LinkedHashSet<>();
 
         for (String slot : requestedSlots) {
             if (slot == null || slot.isBlank()) {
                 continue;
             }
 
-            if (matchesSlot(inv, equipment, expectedItemId, slot)) {
-                return slot;
+            String normalized = normalizeSlot(slot);
+            if (normalized.isBlank()) {
+                continue;
+            }
+
+            if (normalized.equals("ANY")) {
+                String resolvedAny = resolveFirstMatchingAnySlot(inv, equipment, expectedItemId);
+                if (resolvedAny != null && added.add(resolvedAny)) {
+                    matches.add(resolvedAny);
+                }
+                continue;
+            }
+
+            if (matchesConcreteSlot(inv, equipment, expectedItemId, normalized) && added.add(normalized)) {
+                matches.add(normalized);
             }
         }
 
+        return matches;
+    }
+
+    private static String resolveFirstMatchingAnySlot(PlayerInventory inv, EntityEquipment equipment, String expectedItemId) {
+        for (String slot : ANY_SLOT_ORDER) {
+            if (matchesConcreteSlot(inv, equipment, expectedItemId, slot)) {
+                return slot;
+            }
+        }
         return null;
     }
 
-    private static boolean matchesSlot(PlayerInventory inv, EntityEquipment equipment, String expectedItemId, String normalizedSlot) {
+    private static boolean matchesConcreteSlot(PlayerInventory inv, EntityEquipment equipment, String expectedItemId, String normalizedSlot) {
         return switch (normalizedSlot) {
             case "HAND" -> matchesCustomItem(inv.getItemInMainHand(), expectedItemId);
             case "OFF_HAND" -> matchesCustomItem(inv.getItemInOffHand(), expectedItemId);
@@ -175,7 +232,6 @@ public final class CustomItemActivationUtil {
             case "CHEST" -> equipment != null && matchesCustomItem(equipment.getChestplate(), expectedItemId);
             case "LEGS" -> equipment != null && matchesCustomItem(equipment.getLeggings(), expectedItemId);
             case "FEET" -> equipment != null && matchesCustomItem(equipment.getBoots(), expectedItemId);
-            case "ANY" -> matchesAny(inv, equipment, expectedItemId);
             default -> false;
         };
     }
@@ -187,28 +243,6 @@ public final class CustomItemActivationUtil {
             }
         }
         return false;
-    }
-
-    private static boolean matchesAny(PlayerInventory inv, EntityEquipment equipment, String expectedItemId) {
-        if (matchesCustomItem(inv.getItemInMainHand(), expectedItemId)) {
-            return true;
-        }
-        if (matchesCustomItem(inv.getItemInOffHand(), expectedItemId)) {
-            return true;
-        }
-        if (hotbarContains(inv, expectedItemId)) {
-            return true;
-        }
-        if (equipment != null && matchesCustomItem(equipment.getHelmet(), expectedItemId)) {
-            return true;
-        }
-        if (equipment != null && matchesCustomItem(equipment.getChestplate(), expectedItemId)) {
-            return true;
-        }
-        if (equipment != null && matchesCustomItem(equipment.getLeggings(), expectedItemId)) {
-            return true;
-        }
-        return equipment != null && matchesCustomItem(equipment.getBoots(), expectedItemId);
     }
 
     private static String normalizeSlot(String slot) {

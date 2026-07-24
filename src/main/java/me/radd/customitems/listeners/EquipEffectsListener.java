@@ -1,6 +1,7 @@
 package me.radd.customitems.listeners;
 
 import me.radd.customitems.RaddItemsPlugin;
+import me.radd.customitems.items.CustomItemAttributeDefinition;
 import me.radd.customitems.items.CustomItemDefinition;
 import me.radd.customitems.items.CustomPotionEffectDefinition;
 import me.radd.customitems.items.EquipEffectsDefinition;
@@ -9,6 +10,9 @@ import me.radd.customitems.util.PdcKeys;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,7 +31,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -96,6 +102,10 @@ public class EquipEffectsListener implements Listener {
             plugin.debugLog("EquipEffectsListener backup task stopped.");
         }
 
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            clearRuntimeAttributeModifiers(player);
+        }
+
         dirtyPlayers.clear();
         scheduledPlayers.clear();
     }
@@ -111,6 +121,7 @@ public class EquipEffectsListener implements Listener {
         UUID uuid = event.getPlayer().getUniqueId();
         dirtyPlayers.remove(uuid);
         scheduledPlayers.remove(uuid);
+        clearRuntimeAttributeModifiers(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -136,6 +147,7 @@ public class EquipEffectsListener implements Listener {
         if (event.getWhoClicked() instanceof Player player) {
             markDirty(player);
             Bukkit.getScheduler().runTask(plugin, () -> markDirty(player));
+            Bukkit.getScheduler().runTaskLater(plugin, () -> markDirty(player), 1L);
             scheduleImmediateRefresh(player);
         }
     }
@@ -147,6 +159,7 @@ public class EquipEffectsListener implements Listener {
                 markDirty(player);
                 scheduleImmediateRefresh(player);
             });
+            Bukkit.getScheduler().runTaskLater(plugin, () -> markDirty(player), 1L);
         }
     }
 
@@ -213,19 +226,42 @@ public class EquipEffectsListener implements Listener {
     }
 
     private void applyEquipEffects(Player player) {
-        processSlotItem(player, player.getInventory().getHelmet(), "HEAD");
-        processSlotItem(player, player.getInventory().getChestplate(), "CHEST");
-        processSlotItem(player, player.getInventory().getLeggings(), "LEGS");
-        processSlotItem(player, player.getInventory().getBoots(), "FEET");
-        processSlotItem(player, player.getInventory().getItemInMainHand(), "HAND");
-        processSlotItem(player, player.getInventory().getItemInOffHand(), "OFF_HAND");
+        clearRuntimeAttributeModifiers(player);
+
+        Set<String> processedRuntimeItemIds = new HashSet<>();
+
+        processSlot(player, player.getInventory().getHelmet(), "HEAD", processedRuntimeItemIds);
+        processSlot(player, player.getInventory().getChestplate(), "CHEST", processedRuntimeItemIds);
+        processSlot(player, player.getInventory().getLeggings(), "LEGS", processedRuntimeItemIds);
+        processSlot(player, player.getInventory().getBoots(), "FEET", processedRuntimeItemIds);
+        processSlot(player, player.getInventory().getItemInMainHand(), "HAND", processedRuntimeItemIds);
+        processSlot(player, player.getInventory().getItemInOffHand(), "OFF_HAND", processedRuntimeItemIds);
 
         for (int i = 0; i <= 8; i++) {
-            processSlotItem(player, player.getInventory().getItem(i), "HOTBAR");
+            processSlot(player, player.getInventory().getItem(i), "HOTBAR", processedRuntimeItemIds);
         }
     }
 
-    private void processSlotItem(Player player, ItemStack item, String logicalSlot) {
+    private void processSlot(Player player, ItemStack item, String logicalSlot, Set<String> processedRuntimeItemIds) {
+        String itemId = getCustomItemId(item);
+        if (itemId == null) {
+            return;
+        }
+
+        CustomItemDefinition def = plugin.getItemRegistry().get(itemId);
+        if (def == null) {
+            plugin.debugLog("Equip effects skipped: item '" + itemId + "' not found in registry.");
+            return;
+        }
+
+        processPotionEffects(player, item, logicalSlot);
+
+        if (processedRuntimeItemIds.add(itemId)) {
+            applyRuntimeAttributes(player, def, itemId);
+        }
+    }
+
+    private void processPotionEffects(Player player, ItemStack item, String logicalSlot) {
         String itemId = getCustomItemId(item);
         if (itemId == null) {
             return;
@@ -242,8 +278,8 @@ public class EquipEffectsListener implements Listener {
             return;
         }
 
-        List<String> activeSlots = equipEffects.getActiveSlots();
-        if (activeSlots == null || activeSlots.isEmpty()) {
+        List<String> activeSlots = CustomItemActivationUtil.resolveEquipEffectActiveSlots(def);
+        if (activeSlots.isEmpty()) {
             return;
         }
 
@@ -292,16 +328,151 @@ public class EquipEffectsListener implements Listener {
                     effectDef.hasParticles(),
                     effectDef.hasIcon()
             ));
+        }
+    }
 
-            plugin.debugLog("Applied equip effect '" + type.getKey() + "' to player '"
-                    + player.getName() + "' from item '" + itemId + "' in slot '" + logicalSlot
-                    + "' with fixed duration " + desiredDuration + " ticks.");
+    private void applyRuntimeAttributes(Player player, CustomItemDefinition def, String itemId) {
+        if (!CustomItemActivationUtil.isItemActiveForEquipEffects(player, def)) {
+            return;
+        }
+
+        List<CustomItemAttributeDefinition> attributes = def.getAttributes();
+        if (attributes == null || attributes.isEmpty()) {
+            return;
+        }
+
+        for (int i = 0; i < attributes.size(); i++) {
+            CustomItemAttributeDefinition attrDef = attributes.get(i);
+            if (attrDef == null || attrDef.getAttribute() == null || attrDef.getOperation() == null || attrDef.getSlot() == null) {
+                continue;
+            }
+
+            if (!shouldApplyRuntimeAttribute(attrDef.getSlot(), player, def)) {
+                continue;
+            }
+
+            Attribute attribute = parseAttribute(attrDef.getAttribute());
+            if (attribute == null) {
+                plugin.debugLog("Invalid runtime attribute '" + attrDef.getAttribute() + "' for item '" + itemId + "'.");
+                continue;
+            }
+
+            AttributeModifier.Operation operation = parseOperation(attrDef.getOperation());
+            if (operation == null) {
+                plugin.debugLog("Invalid runtime attribute operation '" + attrDef.getOperation()
+                        + "' for item '" + itemId + "'.");
+                continue;
+            }
+
+            AttributeInstance instance = player.getAttribute(attribute);
+            if (instance == null) {
+                continue;
+            }
+
+            String logicalGroup = normalizeRuntimeSlot(attrDef.getSlot());
+            UUID modifierUuid = buildRuntimeModifierUuid(def.getId(), attribute, logicalGroup, i);
+
+            removeModifierIfPresent(instance, modifierUuid);
+
+            AttributeModifier modifier = new AttributeModifier(
+                    modifierUuid,
+                    "radditems_runtime_" + def.getId() + "_" + attribute.name().toLowerCase(Locale.ROOT),
+                    attrDef.getAmount(),
+                    operation
+            );
+
+            instance.addModifier(modifier);
+        }
+    }
+
+    private boolean shouldApplyRuntimeAttribute(String configuredSlot, Player player, CustomItemDefinition def) {
+        if (configuredSlot == null) {
+            return false;
+        }
+
+        String configured = configuredSlot.toUpperCase(Locale.ROOT);
+
+        if (configured.equals("HOTBAR")) {
+            return CustomItemActivationUtil.isItemInLogicalSlot(player, def.getId(), "HOTBAR");
+        }
+
+        if (configured.equals("ANY")) {
+            return CustomItemActivationUtil.isItemActiveForEquipEffects(player, def);
+        }
+
+        return false;
+    }
+
+    private void clearRuntimeAttributeModifiers(Player player) {
+        if (player == null) {
+            return;
+        }
+
+        for (String itemId : plugin.getItemRegistry().getIds()) {
+            CustomItemDefinition def = plugin.getItemRegistry().get(itemId);
+            if (def == null || def.getAttributes() == null || def.getAttributes().isEmpty()) {
+                continue;
+            }
+
+            for (int i = 0; i < def.getAttributes().size(); i++) {
+                CustomItemAttributeDefinition attrDef = def.getAttributes().get(i);
+                if (attrDef == null || attrDef.getAttribute() == null || attrDef.getSlot() == null) {
+                    continue;
+                }
+
+                String configured = attrDef.getSlot().toUpperCase(Locale.ROOT);
+                if (!configured.equals("HOTBAR") && !configured.equals("ANY")) {
+                    continue;
+                }
+
+                Attribute attribute = parseAttribute(attrDef.getAttribute());
+                if (attribute == null) {
+                    continue;
+                }
+
+                AttributeInstance instance = player.getAttribute(attribute);
+                if (instance == null) {
+                    continue;
+                }
+
+                String logicalGroup = normalizeRuntimeSlot(attrDef.getSlot());
+                UUID modifierUuid = buildRuntimeModifierUuid(def.getId(), attribute, logicalGroup, i);
+                removeModifierIfPresent(instance, modifierUuid);
+            }
+        }
+    }
+
+    private UUID buildRuntimeModifierUuid(String itemId, Attribute attribute, String logicalGroup, int index) {
+        return UUID.nameUUIDFromBytes(
+                ("runtime|" + itemId + "|" + attribute.name() + "|" + logicalGroup + "|" + index)
+                        .getBytes(StandardCharsets.UTF_8)
+        );
+    }
+
+    private String normalizeRuntimeSlot(String slot) {
+        return slot == null ? "" : slot.toUpperCase(Locale.ROOT);
+    }
+
+    private void removeModifierIfPresent(AttributeInstance instance, UUID uuid) {
+        for (AttributeModifier modifier : instance.getModifiers()) {
+            if (modifier.getUniqueId().equals(uuid)) {
+                instance.removeModifier(modifier);
+                return;
+            }
         }
     }
 
     private boolean containsLogicalSlot(List<String> activeSlots, String expectedSlot) {
         for (String slot : activeSlots) {
-            if (slot != null && slot.equalsIgnoreCase(expectedSlot)) {
+            if (slot == null) {
+                continue;
+            }
+
+            if (slot.equalsIgnoreCase("ANY")) {
+                return true;
+            }
+
+            if (slot.equalsIgnoreCase(expectedSlot)) {
                 return true;
             }
         }
@@ -334,6 +505,22 @@ public class EquipEffectsListener implements Listener {
 
             return Registry.EFFECT.get(key);
         } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private Attribute parseAttribute(String value) {
+        try {
+            return Attribute.valueOf(value.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
+    }
+
+    private AttributeModifier.Operation parseOperation(String value) {
+        try {
+            return AttributeModifier.Operation.valueOf(value.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
             return null;
         }
     }

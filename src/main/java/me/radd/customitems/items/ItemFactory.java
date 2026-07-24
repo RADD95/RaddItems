@@ -112,13 +112,17 @@ public class ItemFactory {
                     continue;
                 }
 
-                EquipmentSlot slot = parseAttributeSlot(attrDef.getSlot(), def.getId());
-                if (slot == null) {
+                EquipmentSlot nativeSlot = parseNativeAttributeSlot(attrDef.getSlot(), def.getId());
+
+                if (nativeSlot == null) {
+                    plugin.debugLog("Logical/non-native attribute slot '" + attrDef.getSlot()
+                            + "' detected for item '" + def.getId()
+                            + "'. Skipping Bukkit ItemMeta modifier creation here; must be applied manually at runtime.");
                     continue;
                 }
 
                 UUID modifierUuid = UUID.nameUUIDFromBytes(
-                        (def.getId() + "|" + attribute.name() + "|" + slot.name() + "|" + i)
+                        (def.getId() + "|" + attribute.name() + "|" + nativeSlot.name() + "|" + i)
                                 .getBytes(StandardCharsets.UTF_8)
                 );
 
@@ -127,7 +131,7 @@ public class ItemFactory {
                         "radditems_" + def.getId() + "_" + attribute.name().toLowerCase(Locale.ROOT),
                         attrDef.getAmount(),
                         operation,
-                        slot
+                        nativeSlot
                 );
 
                 meta.addAttributeModifier(attribute, modifier);
@@ -177,7 +181,7 @@ public class ItemFactory {
         }
     }
 
-    private EquipmentSlot parseAttributeSlot(String value, String itemId) {
+    private EquipmentSlot parseNativeAttributeSlot(String value, String itemId) {
         if (value == null) {
             plugin.debugLog("Missing attribute slot for item '" + itemId + "'.");
             return null;
@@ -185,9 +189,7 @@ public class ItemFactory {
 
         String normalized = value.toUpperCase(Locale.ROOT);
 
-        if (normalized.equals("HOTBAR")) {
-            plugin.debugLog("Invalid attribute slot 'HOTBAR' for item '" + itemId
-                    + "'. HOTBAR is a logical activation slot, not a valid Bukkit EquipmentSlot.");
+        if (normalized.equals("HOTBAR") || normalized.equals("ANY")) {
             return null;
         }
 
