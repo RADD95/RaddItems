@@ -317,7 +317,11 @@ public class ItemEquipTriggerListener implements Listener {
 
         boolean slotMatches = false;
         for (String slot : activeSlots) {
-            if (slot != null && slot.equalsIgnoreCase(logicalSlot)) {
+            if (slot == null) {
+                continue;
+            }
+
+            if (slot.equalsIgnoreCase("ANY") || slot.equalsIgnoreCase(logicalSlot)) {
                 slotMatches = true;
                 break;
             }
