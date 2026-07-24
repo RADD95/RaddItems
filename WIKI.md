@@ -176,6 +176,7 @@ Items can be active in different slots:
 - `HAND`
 - `OFF_HAND`
 - `HOTBAR`
+- `ANY`
 
 Sets may also use:
 - `ANY`
@@ -185,6 +186,7 @@ What they mean:
 - `HAND`: selected main hand item
 - `OFF_HAND`: offhand item
 - `HOTBAR`: any hotbar slot, even if not selected
+- `ANY`: any valid slot: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND, and HOTBAR.
 
 ## Equip Effects
 
