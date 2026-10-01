@@ -1,6 +1,6 @@
 name: RaddItems
 main: me.radd.customitems.RaddItemsPlugin
-version: 1.0.0
+version: 1.0.1
 api-version: 1.21
 author: RADD
 description: Custom items with attributes, food, effects and armor sets.
